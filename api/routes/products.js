@@ -1,17 +1,6 @@
 var express = require("express");
 var router = express.Router();
 
-/* GET products listing. */
-router.get("/", function (req, res, next) {
-  return res.send(products);
-});
-
-router.get("/:id", function (req, res, next) {});
-
-router.post("/", function (req, res, next) {});
-
-module.exports = router;
-
 const products = [
   {
     key: 1,
@@ -30,3 +19,13 @@ const products = [
     name: "DDDD",
   },
 ];
+/* GET products listing. */
+router.get("/", function (req, res, next) {
+  res.status(200).send(products);
+});
+
+router.get("/:id", function (req, res, next) {});
+
+router.post("/", function (req, res, next) {});
+
+module.exports = router;
