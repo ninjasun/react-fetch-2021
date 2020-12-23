@@ -26,6 +26,12 @@ router.get("/", function (req, res, next) {
 
 router.get("/:id", function (req, res, next) {});
 
-router.post("/", function (req, res, next) {});
+router.post("/", function (req, res, next) {
+  console.log(req.body);
+  if (req.body) {
+    products.push(req.body);
+  }
+  res.status(200);
+});
 
 module.exports = router;
