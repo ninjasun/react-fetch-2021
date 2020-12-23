@@ -31,6 +31,13 @@ router.post("/", function (req, res, next) {
   if (req.body) {
     products.push(req.body);
   }
+  res.status(201);
+});
+
+router.put("/", function (req, res, next) {
+  console.log(req.body);
+  if (req.body) {
+  }
   res.status(200);
 });
 

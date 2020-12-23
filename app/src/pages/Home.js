@@ -16,24 +16,25 @@ function Home() {
     axios.post("/api/products", newProduct)
   );
 
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    mutation.mutate({ key: new Date(), name: name });
+  };
+
   if (isLoading) return "Loading...";
 
   if (error) return "An error has occurred: " + error.message;
 
   return (
     <div>
-      <input
-        onChange={(e) => {
-          setName(e.target.value);
-        }}
-      />
-      <button
-        onClick={() => {
-          mutation.mutate({ key: new Date(), name: name });
-        }}
-      >
-        Create product
-      </button>
+      <form onSubmit={handleSubmit}>
+        <input
+          onChange={(e) => {
+            setName(e.target.value);
+          }}
+        />
+        <button type="submit">Create product</button>
+      </form>
       <ul>
         {data.map((item) => (
           <li key={item.key}>
