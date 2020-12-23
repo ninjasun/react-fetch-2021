@@ -1,50 +1,76 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "react-query";
+import { useQuery, useMutation, useQueryClient } from "react-query";
 import axios from "axios";
 
 function Home() {
+  const queryClient = useQueryClient();
   const [name, setName] = useState("");
 
-  const { isLoading, error, data } = useQuery("products", () =>
-    axios.get("/api/products").then((res) => {
-      const { data } = res;
-      return data;
-    })
+  const { status, data, error, isFetching } = useQuery("products", async () => {
+    const res = await axios.get("/api/products");
+    return res.data;
+  });
+
+  const addMutation = useMutation(
+    (item) => axios.post("/api/products", { key: new Date(), name: item }),
+    {
+      onMutate: async (item) => {
+        setName("");
+        const product = { key: new Date(), name: item };
+        await queryClient.cancelQueries("products");
+
+        const previousValue = queryClient.getQueryData("products");
+
+        queryClient.setQueryData("products", (old) => ({
+          ...old,
+          products: [...old.products, product],
+        }));
+
+        return previousValue;
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries("products");
+      },
+    }
   );
-
-  const mutation = useMutation((newProduct) =>
-    axios.post("/api/products", newProduct)
-  );
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    mutation.mutate({ key: new Date(), name: name });
-  };
-
-  if (isLoading) return "Loading...";
-
-  if (error) return "An error has occurred: " + error.message;
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          addMutation.mutate(name);
+        }}
+      >
         <input
           onChange={(e) => {
             setName(e.target.value);
           }}
+          type="text"
+          value={name}
         />
         <button type="submit">Create product</button>
       </form>
-      <ul>
-        {data.map((item) => (
-          <li key={item.key}>
-            <h1>{item.key}</h1>
-            <p>
-              <strong>👀 {item.name}</strong>{" "}
-            </p>
-          </li>
-        ))}
-      </ul>
+      <>
+        {status === "loading" ? (
+          "Loading..."
+        ) : status === "error" ? (
+          error.message
+        ) : (
+          <>
+            <ul>
+              {data.products.map((item) => (
+                <li key={item.key}>
+                  <p>
+                    <strong>👀 {item.name}</strong>{" "}
+                  </p>
+                </li>
+              ))}
+            </ul>
+            <div>{isFetching ? "Updating in background..." : " "}</div>
+          </>
+        )}
+      </>
     </div>
   );
 }
