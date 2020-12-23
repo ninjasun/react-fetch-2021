@@ -21,7 +21,7 @@ const products = [
 ];
 /* GET products listing. */
 router.get("/", function (req, res, next) {
-  res.status(200).send(products);
+  res.status(200).send({ products: products });
 });
 
 router.get("/:id", function (req, res, next) {});
@@ -32,13 +32,6 @@ router.post("/", function (req, res, next) {
     products.push(req.body);
   }
   res.status(201);
-});
-
-router.put("/", function (req, res, next) {
-  console.log(req.body);
-  if (req.body) {
-  }
-  res.status(200);
 });
 
 module.exports = router;
